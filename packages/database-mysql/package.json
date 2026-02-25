@@ -1,5 +1,5 @@
 {
-    "name": "@builderbot/database-mysql",
+    "name": "@joajo13-test/database-mysql",
     "version": "1.3.15-alpha.14",
     "description": "Esto es el conector a Mysql",
     "keywords": [],
@@ -30,8 +30,8 @@
     },
     "homepage": "https://github.com/codigoencasa/bot-whatsapp#readme",
     "dependencies": {
-        "@builderbot/bot": "^1.3.15-alpha.14",
-        "mysql2": "^3.15.3"
+        "mysql2": "^3.15.3",
+        "@joajo13-test/bot": "^1.3.15-alpha.14"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^29.0.0",
@@ -46,5 +46,8 @@
         "tslib": "^2.6.2",
         "tsm": "^2.3.0"
     },
-    "gitHead": "4c82bc8e42da0ec2032d6ebbfaadb4ab08724292"
+    "gitHead": "4c82bc8e42da0ec2032d6ebbfaadb4ab08724292",
+    "publishConfig": {
+        "access": "public"
+    }
 }

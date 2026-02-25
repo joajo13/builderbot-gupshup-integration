@@ -2,7 +2,7 @@ name: 🚀 (DEV) Liberando versiones
 
 on:
     workflow_dispatch:
-    pull_request:
+    push:
         branches:
             - builderbot-dev
 
@@ -159,7 +159,7 @@ jobs:
                   git commit -m "chore: bump version to $NEW_VERSION [skip ci]" || true
 
                   # Publicar al tag alpha
-                  npx lerna publish from-package --dist-tag alpha --yes
+                  npx lerna publish from-package --dist-tag alpha --scope '@joajo13-test/*' --yes
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
