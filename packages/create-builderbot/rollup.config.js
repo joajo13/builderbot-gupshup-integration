@@ -39,7 +39,7 @@ export default {
     plugins: [
         commonjs(),
         nodeResolve({
-            resolveOnly: (module) => !/@builderbot\/cli|sharp/i.test(module),
+            resolveOnly: (module) => !/@builderbot\/cli|@joajo13-test\/cli|sharp/i.test(module),
         }),
         copyPlugin({
             source: '../../starters/apps',

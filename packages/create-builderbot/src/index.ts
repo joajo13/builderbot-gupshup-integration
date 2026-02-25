@@ -1,8 +1,3 @@
-import { start } from '@builderbot/cli'
-/**
- * Voy a llamar directo a CLI
- * Temporalmente luego mejoro esta
- * parte
- * @returns
- */
+const { start } = require('@joajo13-test/cli') as { start: () => void }
+
 export const main = () => start()
