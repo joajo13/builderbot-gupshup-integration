@@ -63,12 +63,12 @@ suiteCase(`Debe continuar el flujo del hijo`, async ({ database, provider }) => 
         body: 'paypal',
     })
 
-    await provider.delaySendMessage(250, 'message', {
+    await provider.delaySendMessage(400, 'message', {
         from: '000',
         body: 'continue!',
     })
 
-    await delay(800)
+    await delay(1200)
 
     const history = parseAnswers(database.listHistory).map((item) => item.answer)
 
