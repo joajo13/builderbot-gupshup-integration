@@ -148,8 +148,12 @@ jobs:
               run: |
                   # Obtener versión base sin sufijo alpha
                   BASE_VERSION=$(node -p "require('./lerna.json').version.replace(/-alpha.*/, '')")
-                  NEW_VERSION="${BASE_VERSION}-alpha.${{ github.run_number }}"
-                  echo "📦 Publicando versión: $NEW_VERSION"
+
+                  # Evitar downgrades cuando el repositorio ya trae un alpha mayor
+                  CURRENT_ALPHA=$(node -p "Number((require('./lerna.json').version.match(/-alpha\\.(\\d+)$/) || [])[1] || 0)")
+                  NEXT_ALPHA=$((CURRENT_ALPHA + 1))
+                  NEW_VERSION="${BASE_VERSION}-alpha.${NEXT_ALPHA}"
+                  echo "📦 Publicando versión: $NEW_VERSION (current alpha: $CURRENT_ALPHA)"
 
                   # Actualizar versión en todos los paquetes
                   npx lerna version $NEW_VERSION --force-publish --yes --no-git-tag-version --no-push
