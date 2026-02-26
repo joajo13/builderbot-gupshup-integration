@@ -36,8 +36,6 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - uses: pnpm/action-setup@v4
-
             - name: Cache heavy binaries
               uses: actions/cache@v4
               with:
@@ -53,6 +51,11 @@ jobs:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: 'pnpm'
                   cache-dependency-path: pnpm-lock.yaml
+
+            - name: Prepare pnpm (Corepack)
+              run: |
+                  corepack enable
+                  corepack prepare pnpm@9.0.6 --activate
 
             - name: Install Dependencies
               run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
@@ -68,8 +71,6 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v4
 
-            - uses: pnpm/action-setup@v4
-
             - name: Cache heavy binaries
               uses: actions/cache@v4
               with:
@@ -85,6 +86,11 @@ jobs:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: 'pnpm'
                   cache-dependency-path: pnpm-lock.yaml
+
+            - name: Prepare pnpm (Corepack)
+              run: |
+                  corepack enable
+                  corepack prepare pnpm@9.0.6 --activate
 
             - name: Install Dependencies
               run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
@@ -115,8 +121,6 @@ jobs:
                   fetch-depth: 0
                   ref: ${{ github.head_ref || github.ref_name }}
 
-            - uses: pnpm/action-setup@v4
-
             - name: Cache heavy binaries
               uses: actions/cache@v4
               with:
@@ -133,6 +137,11 @@ jobs:
                   cache: 'pnpm'
                   cache-dependency-path: pnpm-lock.yaml
                   registry-url: 'https://registry.npmjs.org'
+
+            - name: Prepare pnpm (Corepack)
+              run: |
+                  corepack enable
+                  corepack prepare pnpm@9.0.6 --activate
 
             - name: Install Dependencies
               run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
