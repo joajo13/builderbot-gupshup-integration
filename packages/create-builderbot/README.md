@@ -9,6 +9,21 @@
 
 Visit [builderbot](https://builderbot.app/) to view the full documentation.
 
+## Forked Command Usage
+
+Use your forked package directly:
+
+```bash
+pnpm create @joajo13-test/builderbot@alpha
+```
+
+The scaffolder now defaults generated dependencies/imports to `@joajo13-test/*`.
+
+Optional overrides:
+
+- CLI flag: `--scope=@your-scope`
+- Environment variable: `BUILDERBOT_PACKAGE_SCOPE=@your-scope`
+
 
 ## Official Course
 

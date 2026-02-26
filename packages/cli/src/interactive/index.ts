@@ -1,7 +1,7 @@
 import { intro, outro, confirm, select, spinner, isCancel, cancel, note } from '@clack/prompts'
 import { existsSync } from 'fs'
-import { readFile, rename, writeFile } from 'fs/promises'
-import { join } from 'path'
+import { readdir, readFile, rename, writeFile } from 'fs/promises'
+import { extname, join } from 'path'
 import color from 'picocolors'
 
 import { checkNodeVersion, checkGit } from '../check'
@@ -12,6 +12,22 @@ import { startInteractiveLegacy } from '../interactive-legacy'
 interface CheckResult {
     pass: boolean
     message: string
+}
+
+const DEFAULT_PACKAGE_SCOPE = '@joajo13-test'
+const BUILDERBOT_SCOPE = '@builderbot'
+const SCOPE_FILE_EXTENSIONS = new Set(['.js', '.ts', '.json', '.cjs', '.mjs'])
+
+const normalizePackageScope = (scope: string | undefined): string => {
+    const value = (scope ?? DEFAULT_PACKAGE_SCOPE).trim().replace(/\/$/, '')
+    if (!value.startsWith('@')) {
+        throw new Error(`INVALID_PACKAGE_SCOPE: ${scope}`)
+    }
+    return value
+}
+
+const getPackageScope = (args: Record<string, string>): string => {
+    return normalizePackageScope(args['scope'] ?? process.env.BUILDERBOT_PACKAGE_SCOPE)
 }
 
 const handleLegacyCli = async (): Promise<void> => {
@@ -78,19 +94,63 @@ const systemRequirements = async (): Promise<void> => {
     }
 }
 
-const setVersionTemplate = async (projectPath: string, version: string) => {
+const replaceTemplatePackageScope = async (projectPath: string, packageScope: string): Promise<void> => {
+    if (packageScope === BUILDERBOT_SCOPE) {
+        return
+    }
+
+    const sourceScope = `${BUILDERBOT_SCOPE}/`
+    const targetScope = `${packageScope}/`
+
+    const replaceScopeInDir = async (dirPath: string): Promise<void> => {
+        const entries = await readdir(dirPath, { withFileTypes: true })
+
+        for (const entry of entries) {
+            const fullPath = join(dirPath, entry.name)
+
+            if (entry.isDirectory()) {
+                await replaceScopeInDir(fullPath)
+                continue
+            }
+
+            if (!SCOPE_FILE_EXTENSIONS.has(extname(entry.name))) {
+                continue
+            }
+
+            const raw = await readFile(fullPath, 'utf-8')
+            if (!raw.includes(sourceScope)) {
+                continue
+            }
+
+            const nextRaw = raw.replaceAll(sourceScope, targetScope)
+            await writeFile(fullPath, nextRaw)
+        }
+    }
+
+    await replaceScopeInDir(projectPath)
+}
+
+const setVersionTemplate = async (projectPath: string, version: string, packageScope: string) => {
     try {
         const pkg = join(projectPath, 'package.json')
         const raw = await readFile(pkg, 'utf-8')
         const parseRaw = JSON.parse(raw)
-        const dependencies = parseRaw.dependencies
-        const newDependencies = Object.keys(dependencies).map((dep) => {
-            if (dep.startsWith('@builderbot/')) return [dep, version]
-            if (dep === 'eslint-plugin-builderbot') return [dep, version]
-            return [dep, dependencies[dep]]
-        })
+        const sourceScope = `${BUILDERBOT_SCOPE}/`
+        const targetScope = `${packageScope}/`
 
-        parseRaw.dependencies = Object.fromEntries(newDependencies)
+        const updateDeps = (deps: Record<string, string> = {}): Record<string, string> => {
+            const nextDependencies = Object.entries(deps).map(([dep, depVersion]) => {
+                if (dep.startsWith(sourceScope)) return [dep.replace(sourceScope, targetScope), version]
+                if (dep.startsWith(targetScope)) return [dep, version]
+                if (dep === 'eslint-plugin-builderbot') return [dep, version]
+                return [dep, depVersion]
+            })
+
+            return Object.fromEntries(nextDependencies)
+        }
+
+        parseRaw.dependencies = updateDeps(parseRaw.dependencies)
+        parseRaw.devDependencies = updateDeps(parseRaw.devDependencies)
         await writeFile(pkg, JSON.stringify(parseRaw, null, 2))
     } catch (e) {
         console.log(`Error Set Version: `, e)
@@ -175,6 +235,7 @@ const startInteractive = async (version: string): Promise<void> => {
             stepProvider: stepProvider as string,
             stepDatabase: stepDatabase as string,
             version,
+            packageScope: getPackageScope({}),
         })
     } catch (e: any) {
         logError(e)
@@ -186,11 +247,13 @@ const createBot = async ({
     stepProvider,
     stepDatabase,
     version,
+    packageScope,
 }: {
     stepLanguage: string
     stepProvider: string
     stepDatabase: string
     version: string
+    packageScope: string
 }): Promise<void> => {
     try {
         const s = spinner()
@@ -202,8 +265,9 @@ const createBot = async ({
         const NAME_DIR: string = ['base', stepLanguage, stepProvider, stepDatabase].join('-')
         const projectPath = await createApp(NAME_DIR)
         s.stop(`Creating project...`)
+        await replaceTemplatePackageScope(projectPath, packageScope)
         bannerDone(NAME_DIR, stepLanguage as string)
-        await setVersionTemplate(projectPath, version)
+        await setVersionTemplate(projectPath, version, packageScope)
         outro(color.bgGreen(' Successfully completed! '))
     } catch (e: any) {
         logError(e)
@@ -220,6 +284,7 @@ const startWithArgs = async (version: string, args: Record<string, string>): Pro
             stepProvider,
             stepDatabase,
             version,
+            packageScope: getPackageScope(args),
         })
     } catch (e: any) {
         logError(e)
@@ -256,6 +321,15 @@ function validateArgs(args: Record<string, string>): void {
     if (args['language'] && !AVAILABLE_LANGUAGES.some((p) => p.value === args['language'])) {
         cancel(`Invalid language: ${args['language']}`)
         process.exit(0)
+    }
+
+    if (args['scope']) {
+        try {
+            normalizePackageScope(args['scope'])
+        } catch {
+            cancel(`Invalid package scope: ${args['scope']}. Example: --scope=@joajo13-test`)
+            process.exit(0)
+        }
     }
 
     validateTemplateSupportOrExit(args['provider'], args['language'], args['database'])
