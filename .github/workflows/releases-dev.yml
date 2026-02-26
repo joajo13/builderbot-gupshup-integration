@@ -135,6 +135,7 @@ jobs:
                   path: packages
 
             - name: Verify npm authentication
+              if: ${{ secrets.NPM_TOKEN != '' }}
               run: npm whoami
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -146,6 +147,15 @@ jobs:
 
             - name: Release Alpha
               run: |
+                  # Prefer OIDC trusted publishing; fallback to token if configured.
+                  if [ -n "$NPM_TOKEN" ]; then
+                      export NODE_AUTH_TOKEN="$NPM_TOKEN"
+                      echo "🔐 npm auth mode: token"
+                  else
+                      unset NODE_AUTH_TOKEN
+                      echo "🪪 npm auth mode: trusted publishing (OIDC)"
+                  fi
+
                   # Obtener versión base sin sufijo alpha
                   BASE_VERSION=$(node -p "require('./lerna.json').version.replace(/-alpha.*/, '')")
 
@@ -165,7 +175,10 @@ jobs:
                   # Publicar al tag alpha
                   npx lerna publish from-package --dist-tag alpha --yes
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  # Preferred path: npm trusted publishing via OIDC (no token required)
+                  NPM_CONFIG_PROVENANCE: 'true'
+                  # Fallback path: token-based publish when NPM_TOKEN is configured
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: 📋 Log Deployed Version
               run: |
