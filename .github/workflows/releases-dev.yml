@@ -155,8 +155,8 @@ jobs:
               run: |
                   # Force OIDC trusted publishing in CI.
                   # Token auth is intentionally disabled to avoid npm 2FA bypass errors.
-                  unset NODE_AUTH_TOKEN
-                  unset NPM_TOKEN
+                  export NODE_AUTH_TOKEN=''
+                  export NPM_TOKEN=''
                   echo "🪪 npm auth mode: trusted publishing (OIDC only)"
 
                   # Obtener versión base sin sufijo alpha
@@ -175,8 +175,8 @@ jobs:
                   git add -A
                   git commit -m "chore: bump version to $NEW_VERSION [skip ci]" || true
 
-                  # Publicar al tag alpha como paquetes publicos
-                  npx lerna publish from-package --dist-tag alpha --yes --access public
+                  # Publicar al tag alpha sin verificar acceso previo (soporta first publish)
+                  npx lerna publish from-package --dist-tag alpha --yes --no-verify-access
               env:
                   # Preferred path: npm trusted publishing via OIDC (no token required)
                   NPM_CONFIG_PROVENANCE: 'true'
