@@ -135,9 +135,14 @@ jobs:
                   path: packages
 
             - name: Verify npm authentication
-              if: ${{ secrets.NPM_TOKEN != '' }}
-              run: npm whoami
+              run: |
+                  if [ -n "$NPM_TOKEN" ]; then
+                      npm whoami
+                  else
+                      echo "Skipping npm whoami (no NPM_TOKEN configured)"
+                  fi
               env:
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: Configure Git
