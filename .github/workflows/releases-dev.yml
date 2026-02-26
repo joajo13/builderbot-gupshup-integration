@@ -2,15 +2,6 @@ name: 🚀 (DEV) Liberando versiones
 
 on:
     workflow_dispatch:
-        inputs:
-            auth_mode:
-                description: 'Authentication mode for npm publish (oidc | token)'
-                required: false
-                default: 'oidc'
-                type: choice
-                options:
-                    - oidc
-                    - token
     push:
         branches:
             - builderbot-dev
@@ -133,7 +124,6 @@ jobs:
         permissions:
             contents: write
             packages: write
-            id-token: write
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -182,16 +172,10 @@ jobs:
                   path: packages
 
             - name: Verify npm authentication
-              run: |
-                  if [ "${AUTH_MODE}" = "token" ] && [ -n "$NPM_TOKEN" ]; then
-                      npm whoami
-                  else
-                      echo "Skipping npm whoami (OIDC mode)"
-                  fi
+              run: npm whoami
               env:
-                  AUTH_MODE: ${{ github.event.inputs.auth_mode || 'oidc' }}
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: Configure Git
               run: |
@@ -200,14 +184,8 @@ jobs:
 
             - name: Release Alpha
               run: |
-                  if [ "${AUTH_MODE}" = "token" ] && [ -n "$NPM_TOKEN" ]; then
-                      export NODE_AUTH_TOKEN="$NPM_TOKEN"
-                      echo "🔐 npm auth mode: token"
-                  else
-                      export NODE_AUTH_TOKEN=''
-                      export NPM_TOKEN=''
-                      echo "🪪 npm auth mode: trusted publishing (OIDC only)"
-                  fi
+                  export NODE_AUTH_TOKEN="$NPM_TOKEN"
+                  echo "🔐 npm auth mode: token"
 
                   # Obtener versión base sin sufijo alpha
                   BASE_VERSION=$(node -p "require('./lerna.json').version.replace(/-alpha.*/, '')")
@@ -228,10 +206,8 @@ jobs:
                   # Publicar al tag alpha
                   npx lerna publish from-package --dist-tag alpha --yes
               env:
-                  AUTH_MODE: ${{ github.event.inputs.auth_mode || 'oidc' }}
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-                  # Preferred path: npm trusted publishing via OIDC (no token required)
-                  NPM_CONFIG_PROVENANCE: 'true'
+                  NPM_CONFIG_PROVENANCE: 'false'
 
             - name: 📋 Log Deployed Version
               run: |
