@@ -8,27 +8,14 @@ import { checkNodeVersion, checkGit } from '../check'
 import { AVAILABLE_LANGUAGES, PROVIDER_DATA, PROVIDER_LIST, validateTemplateCombination } from '../configuration'
 import { copyBaseApp } from '../create-app'
 import { startInteractiveLegacy } from '../interactive-legacy'
+import { BUILDERBOT_SCOPE, createTemplateMetadata, getPackageScope, normalizePackageScope } from './package-scope'
 
 interface CheckResult {
     pass: boolean
     message: string
 }
 
-const DEFAULT_PACKAGE_SCOPE = '@joajo13-test'
-const BUILDERBOT_SCOPE = '@builderbot'
 const SCOPE_FILE_EXTENSIONS = new Set(['.js', '.ts', '.json', '.cjs', '.mjs'])
-
-const normalizePackageScope = (scope: string | undefined): string => {
-    const value = (scope ?? DEFAULT_PACKAGE_SCOPE).trim().replace(/\/$/, '')
-    if (!value.startsWith('@')) {
-        throw new Error(`INVALID_PACKAGE_SCOPE: ${scope}`)
-    }
-    return value
-}
-
-const getPackageScope = (args: Record<string, string>): string => {
-    return normalizePackageScope(args['scope'] ?? process.env.BUILDERBOT_PACKAGE_SCOPE)
-}
 
 const handleLegacyCli = async (): Promise<void> => {
     await startInteractiveLegacy()
@@ -135,23 +122,9 @@ const setVersionTemplate = async (projectPath: string, version: string, packageS
         const pkg = join(projectPath, 'package.json')
         const raw = await readFile(pkg, 'utf-8')
         const parseRaw = JSON.parse(raw)
-        const sourceScope = `${BUILDERBOT_SCOPE}/`
-        const targetScope = `${packageScope}/`
 
-        const updateDeps = (deps: Record<string, string> = {}): Record<string, string> => {
-            const nextDependencies = Object.entries(deps).map(([dep, depVersion]) => {
-                if (dep.startsWith(sourceScope)) return [dep.replace(sourceScope, targetScope), version]
-                if (dep.startsWith(targetScope)) return [dep, version]
-                if (dep === 'eslint-plugin-builderbot') return [dep, version]
-                return [dep, depVersion]
-            })
-
-            return Object.fromEntries(nextDependencies)
-        }
-
-        parseRaw.dependencies = updateDeps(parseRaw.dependencies)
-        parseRaw.devDependencies = updateDeps(parseRaw.devDependencies)
-        await writeFile(pkg, JSON.stringify(parseRaw, null, 2))
+        const templateMetadata = createTemplateMetadata(parseRaw, version, packageScope)
+        await writeFile(pkg, JSON.stringify(templateMetadata, null, 2))
     } catch (e) {
         console.log(`Error Set Version: `, e)
     }
