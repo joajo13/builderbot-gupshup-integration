@@ -175,8 +175,8 @@ jobs:
                   git add -A
                   git commit -m "chore: bump version to $NEW_VERSION [skip ci]" || true
 
-                  # Publicar al tag alpha
-                  npx lerna publish from-package --dist-tag alpha --yes
+                  # Publicar al tag alpha como paquetes publicos
+                  npx lerna publish from-package --dist-tag alpha --yes --access public
               env:
                   # Preferred path: npm trusted publishing via OIDC (no token required)
                   NPM_CONFIG_PROVENANCE: 'true'
