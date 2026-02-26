@@ -1,5 +1,5 @@
-import { utils } from '@builderbot/bot'
 import { beforeEach, describe, expect, jest, test } from '@jest/globals'
+import { utils } from '@joajo13-test/bot'
 import axios from 'axios'
 import { EventEmitter } from 'node:events'
 import * as nodeFs from 'node:fs'
@@ -19,7 +19,7 @@ jest.mock('node:fs', () => {
     }
 })
 
-jest.mock('@builderbot/bot', () => ({
+jest.mock('@joajo13-test/bot', () => ({
     ProviderClass: class {
         server: any = {
             use: jest.fn().mockReturnThis(),

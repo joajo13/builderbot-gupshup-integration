@@ -1,4 +1,4 @@
-import { GlobalVendorArgs } from '@builderbot/bot/dist/types'
+import { GlobalVendorArgs } from '@joajo13-test/bot/dist/types'
 
 export type GupshupStatusLogMode = 'off' | 'failed' | 'all'
 

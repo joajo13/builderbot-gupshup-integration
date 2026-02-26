@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, jest, test } from '@jest/globals'
 import { GupshupCloudIncomingMessageArgs, GupshupGlobalVendorArgs } from '../src/types'
 import { processIncomingMessage } from '../src/utils/processIncomingMsg'
 
-jest.mock('@builderbot/bot', () => ({
+jest.mock('@joajo13-test/bot', () => ({
     utils: {
         generateRefProvider: jest.fn((type: string) => `__${type}__`),
     },

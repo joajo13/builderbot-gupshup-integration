@@ -16,7 +16,7 @@ export default {
         json(),
         commonjs(),
         nodeResolve({
-            resolveOnly: (module) => !/axios|@builderbot\/bot/i.test(module),
+            resolveOnly: (module) => !/axios|@joajo13-test\/bot/i.test(module),
         }),
         typescript(),
     ],

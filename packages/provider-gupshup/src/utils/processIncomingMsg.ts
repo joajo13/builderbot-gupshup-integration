@@ -1,5 +1,5 @@
-import { utils } from '@builderbot/bot'
-import { BotContext } from '@builderbot/bot/dist/types'
+import { utils } from '@joajo13-test/bot'
+import { BotContext } from '@joajo13-test/bot/dist/types'
 
 import { resolveCloudMediaId, resolveCloudMediaMeta, resolveCloudMediaUrl } from './media'
 import { GupshupCloudIncomingMessageArgs, GupshupCloudMessage, GupshupGlobalVendorArgs } from '../types'
