@@ -182,19 +182,27 @@ jobs:
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
 
+            - name: Resolve next alpha version
+              id: resolve_alpha
+              run: node ./scripts/resolve-next-alpha-version.mjs --package @joajo13-test/bot
+
             - name: Release Alpha
               run: |
                   export NODE_AUTH_TOKEN="$NPM_TOKEN"
                   echo "🔐 npm auth mode: token"
 
-                  # Obtener versión base sin sufijo alpha
-                  BASE_VERSION=$(node -p "require('./lerna.json').version.replace(/-alpha.*/, '')")
+                  NEW_VERSION='${{ steps.resolve_alpha.outputs.version }}'
+                  if [ -z "$NEW_VERSION" ]; then
+                      echo "❌ Failed to resolve next alpha version"
+                      exit 1
+                  fi
 
-                  # Evitar downgrades cuando el repositorio ya trae un alpha mayor
-                  CURRENT_ALPHA=$(node -p "Number((require('./lerna.json').version.match(/-alpha\\.(\\d+)$/) || [])[1] || 0)")
-                  NEXT_ALPHA=$((CURRENT_ALPHA + 1))
-                  NEW_VERSION="${BASE_VERSION}-alpha.${NEXT_ALPHA}"
-                  echo "📦 Publicando versión: $NEW_VERSION (current alpha: $CURRENT_ALPHA)"
+                  if npm view "@joajo13-test/bot@$NEW_VERSION" version --json >/dev/null 2>&1; then
+                      echo "❌ Version $NEW_VERSION already exists in npm and auto-bump safeguard failed"
+                      exit 1
+                  fi
+
+                  echo "📦 Publicando versión: $NEW_VERSION"
 
                   # Actualizar versión en todos los paquetes
                   npx lerna version $NEW_VERSION --force-publish --yes --no-git-tag-version --no-push
