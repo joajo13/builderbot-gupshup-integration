@@ -22,12 +22,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/codigoencasa/bot-whatsapp.git"
+        "url": "https://github.com/joajo13/builderbot-gupshup-integration"
     },
     "bugs": {
-        "url": "https://github.com/codigoencasa/bot-whatsapp/issues"
+        "url": "https://github.com/joajo13/builderbot-gupshup-integration/issues"
     },
-    "homepage": "https://github.com/codigoencasa/bot-whatsapp#readme",
+    "homepage": "https://github.com/joajo13/builderbot-gupshup-integration#readme",
     "devDependencies": {
         "@hapi/boom": "^10.0.1",
         "@jest/globals": "^30.2.0",

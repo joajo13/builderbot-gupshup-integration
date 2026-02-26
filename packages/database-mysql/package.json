@@ -17,7 +17,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/codigoencasa/bot-whatsapp.git"
+        "url": "https://github.com/joajo13/builderbot-gupshup-integration"
     },
     "scripts": {
         "build": "rimraf dist && rollup --config",
@@ -26,9 +26,9 @@
         "test:coverage": "npx c8  npm run test"
     },
     "bugs": {
-        "url": "https://github.com/codigoencasa/bot-whatsapp/issues"
+        "url": "https://github.com/joajo13/builderbot-gupshup-integration/issues"
     },
-    "homepage": "https://github.com/codigoencasa/bot-whatsapp#readme",
+    "homepage": "https://github.com/joajo13/builderbot-gupshup-integration#readme",
     "dependencies": {
         "mysql2": "^3.15.3",
         "@joajo13-test/bot": "workspace:*"
