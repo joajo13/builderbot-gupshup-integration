@@ -40,6 +40,14 @@
         "typescript": "^5.0.0",
         "@joajo13-test/bot": "workspace:*"
     },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/joajo13/builderbot-gupshup-integration"
+    },
+    "bugs": {
+        "url": "https://github.com/joajo13/builderbot-gupshup-integration/issues"
+    },
+    "homepage": "https://github.com/joajo13/builderbot-gupshup-integration#readme",
     "publishConfig": {
         "access": "public"
     }
