@@ -19,15 +19,28 @@ jobs:
               with:
                   fetch-depth: 0
                   token: ${{ secrets.GITHUB_TOKEN }}
+                  submodules: false
 
             - name: Setup Node
               uses: actions/setup-node@v3
               with:
                   node-version: 22.20.0
-                  cache: 'pnpm'
                   registry-url: https://registry.npmjs.org/
 
             - run: corepack enable
+
+            - name: Prepare pnpm
+              run: corepack prepare pnpm@9.0.6 --activate
+
+            - name: Resolve pnpm store path
+              run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+            - name: Cache pnpm store
+              uses: actions/cache@v4
+              with:
+                  path: ${{ env.PNPM_STORE_PATH }}
+                  key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  restore-keys: pnpm-store-${{ runner.os }}-
 
             - name: Set User
               run: git config --global user.email "leifer.contacto@gmail.com" && git config --global user.name "Leifer Mendez"

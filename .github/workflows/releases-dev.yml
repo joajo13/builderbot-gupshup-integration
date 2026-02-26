@@ -35,6 +35,8 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  submodules: false
 
             - name: Cache heavy binaries
               uses: actions/cache@v4
@@ -49,13 +51,21 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ env.NODE_VERSION }}
-                  cache: 'pnpm'
-                  cache-dependency-path: pnpm-lock.yaml
 
             - name: Prepare pnpm (Corepack)
               run: |
                   corepack enable
                   corepack prepare pnpm@9.0.6 --activate
+
+            - name: Resolve pnpm store path
+              run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+            - name: Cache pnpm store
+              uses: actions/cache@v4
+              with:
+                  path: ${{ env.PNPM_STORE_PATH }}
+                  key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  restore-keys: pnpm-store-${{ runner.os }}-
 
             - name: Install Dependencies
               run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
@@ -70,6 +80,8 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                  submodules: false
 
             - name: Cache heavy binaries
               uses: actions/cache@v4
@@ -84,13 +96,21 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ env.NODE_VERSION }}
-                  cache: 'pnpm'
-                  cache-dependency-path: pnpm-lock.yaml
 
             - name: Prepare pnpm (Corepack)
               run: |
                   corepack enable
                   corepack prepare pnpm@9.0.6 --activate
+
+            - name: Resolve pnpm store path
+              run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+            - name: Cache pnpm store
+              uses: actions/cache@v4
+              with:
+                  path: ${{ env.PNPM_STORE_PATH }}
+                  key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  restore-keys: pnpm-store-${{ runner.os }}-
 
             - name: Install Dependencies
               run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
@@ -120,6 +140,7 @@ jobs:
               with:
                   fetch-depth: 0
                   ref: ${{ github.head_ref || github.ref_name }}
+                  submodules: false
 
             - name: Cache heavy binaries
               uses: actions/cache@v4
@@ -134,14 +155,22 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ env.NODE_VERSION }}
-                  cache: 'pnpm'
-                  cache-dependency-path: pnpm-lock.yaml
                   registry-url: 'https://registry.npmjs.org'
 
             - name: Prepare pnpm (Corepack)
               run: |
                   corepack enable
                   corepack prepare pnpm@9.0.6 --activate
+
+            - name: Resolve pnpm store path
+              run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+            - name: Cache pnpm store
+              uses: actions/cache@v4
+              with:
+                  path: ${{ env.PNPM_STORE_PATH }}
+                  key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  restore-keys: pnpm-store-${{ runner.os }}-
 
             - name: Install Dependencies
               run: pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
