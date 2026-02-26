@@ -24,7 +24,7 @@ test('createTemplateMetadata defaults dependencies to @joajo13-test scope', () =
     assert.not.ok(templateMetadata.dependencies['@builderbot/bot'])
     assert.equal(templateMetadata.dependencies.dotenv, '^16.4.7')
     assert.equal(templateMetadata.devDependencies['@joajo13-test/provider-meta'], '1.3.15-alpha.15')
-    assert.equal(templateMetadata.devDependencies['eslint-plugin-builderbot'], '1.3.15-alpha.15')
+    assert.equal(templateMetadata.devDependencies['eslint-plugin-builderbot'], '^1.0.0')
 })
 
 test('getPackageScope keeps scope argument and env override behavior', () => {

@@ -27,7 +27,6 @@ export const updateTemplateDependencies = (
     const nextDependencies = Object.entries(deps).map(([dep, depVersion]) => {
         if (dep.startsWith(sourceScope)) return [dep.replace(sourceScope, targetScope), version]
         if (dep.startsWith(targetScope)) return [dep, version]
-        if (dep === 'eslint-plugin-builderbot') return [dep, version]
         return [dep, depVersion]
     })
 

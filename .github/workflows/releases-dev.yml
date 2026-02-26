@@ -207,6 +207,9 @@ jobs:
                   # Actualizar versión en todos los paquetes
                   npx lerna version $NEW_VERSION --force-publish --yes --no-git-tag-version --no-push
 
+                  # Reemplazar rangos workspace:* y omitir bump del plugin sin permisos
+                  node ./scripts/prepare-alpha-publish-manifests.mjs --version "$NEW_VERSION"
+
                   # Hacer commit temporal de los cambios de versión (necesario para lerna publish)
                   git add -A
                   git commit -m "chore: bump version to $NEW_VERSION [skip ci]" || true
